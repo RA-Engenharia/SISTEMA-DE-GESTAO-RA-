@@ -1,40 +1,21 @@
-# Dependency Directories
+# Dependencies
 node_modules/
-vendor/
-venv/
-env/
-.venv/
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-pip-log.txt
-pip-delete-this-directory.txt
+.pnp/
+.pnp.js
 
-# Build Outputs
+# Build outputs
 dist/
 build/
-*.egg-info/
-.eggs/
-target/
+.next/
 out/
-bin/
-obj/
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-
-# Environment Variables
+# Environment variables
 .env
 .env.local
-.env.*.local
-*.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
 
 # Logs
 logs/
@@ -47,15 +28,51 @@ lerna-debug.log*
 # Testing
 coverage/
 .nyc_output/
-.pytest_cache/
-.coverage
-htmlcov/
+*.lcov
+
+# IDE
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
 
 # OS
-Thumbs.db
 .DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
 
-# Temporary Files
+# Temporary files
 *.tmp
 *.temp
 .cache/
+tmp/
+temp/
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+prisma/migrations/*.sql.bak
+
+# TypeScript
+*.tsbuildinfo
+
+# Misc
+*.pid
+*.seed
+*.pid.lock
+
+# Docker
+docker-compose.override.yml
+
+# Uploads (keep folder structure)
+uploads/*
+!uploads/.gitkeep
+
+# Generated files
+generated/
+*.generated.*

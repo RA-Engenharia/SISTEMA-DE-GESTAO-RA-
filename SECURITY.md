@@ -2,21 +2,20 @@
 
 ## Supported Versions
 
-This section will be updated once the project has stable releases.
-
 | Version | Supported          |
 | ------- | ------------------ |
-| TBD     | :white_check_mark: |
+| 1.x     | :white_check_mark: |
 
 ## Reporting a Vulnerability
 
-We take the security of SISTEMA-DE-GESTAO-RA- seriously. If you have discovered a security vulnerability, please follow these steps:
+We take the security of SISTEMA-DE-GESTAO-RA seriously. If you have discovered a security vulnerability, please follow these steps:
 
 ### How to Report
 
 1. **DO NOT** open a public issue
-2. Email security concerns to: [INSERT YOUR SECURITY EMAIL]
-3. Include the following information:
+2. Open a private security advisory at: https://github.com/RA-Engenharia/SISTEMA-DE-GESTAO-RA-/security/advisories/new
+3. Or email security concerns to: security@ra-engenharia.com
+4. Include the following information:
    - Type of vulnerability
    - Full paths of source file(s) related to the vulnerability
    - Location of the affected source code (tag/branch/commit or direct URL)
@@ -56,7 +55,7 @@ We take the security of SISTEMA-DE-GESTAO-RA- seriously. If you have discovered 
 
 ### Development Environment
 
-- Use the latest stable version of your runtime (Node.js, Python, etc.)
+- Use the latest stable version of your runtime (Node.js 20.x LTS)
 - Keep your development tools updated
 - Use a linter to catch common security issues
 - Run security tests in your CI/CD pipeline
@@ -67,8 +66,9 @@ We take the security of SISTEMA-DE-GESTAO-RA- seriously. If you have discovered 
 This project uses the following automated security tools:
 
 - **Dependabot**: Automated dependency updates and security alerts
-- **GitHub Advanced Security**: Code scanning and secret scanning (if enabled)
+- **GitHub Advanced Security**: Code scanning and secret scanning
 - **CI/CD Security Audits**: Automated vulnerability scanning on every PR
+- **ESLint Security Plugin**: Static analysis for security issues
 
 ## Security Checklist
 
@@ -76,47 +76,33 @@ Before deploying or releasing:
 
 - [ ] All dependencies are up to date
 - [ ] No high or critical severity vulnerabilities
-- [ ] Security audit has been run
+- [ ] Security audit has been run (`npm audit`)
 - [ ] No secrets in code or version control
 - [ ] Environment variables are properly configured
 - [ ] Authentication and authorization are implemented
 - [ ] Input validation is in place
 - [ ] HTTPS is enforced
-- [ ] Security headers are configured
+- [ ] Security headers are configured (Helmet.js)
 - [ ] Rate limiting is implemented
 - [ ] Logging and monitoring are configured
 - [ ] Backups are configured and tested
-- [ ] Incident response plan is documented
 
-## Known Security Gaps
+## Security Features Implemented
 
-This section documents known security limitations that are planned for future implementation:
-
-- [ ] Project is in initial setup phase
-- [ ] Security features to be implemented based on chosen technology stack
-
-## Security Updates
-
-Security updates will be released as soon as possible after a vulnerability is confirmed. We recommend:
-
-- Monitoring this repository for security advisories
-- Enabling Dependabot alerts
-- Subscribing to security mailing lists for your dependencies
-- Keeping your deployment up to date
-
-## Compliance
-
-This project aims to follow security best practices including:
-
-- OWASP Top 10
-- CWE Top 25
-- Industry-standard secure coding practices
+- **Authentication**: JWT-based authentication with bcrypt password hashing
+- **Authorization**: Role-based access control (RBAC)
+- **Input Validation**: Zod schema validation on all endpoints
+- **SQL Injection Prevention**: Parameterized queries via Prisma ORM
+- **XSS Protection**: React's built-in escaping + Helmet.js headers
+- **CSRF Protection**: SameSite cookies + origin validation
+- **Rate Limiting**: Express rate limiter on all API endpoints
+- **Security Headers**: Comprehensive headers via Helmet.js
 
 ## Contact
 
 For security-related questions or concerns:
-- Security Email: [INSERT EMAIL]
-- Project Maintainers: [INSERT CONTACT INFO]
+- Security Email: security@ra-engenharia.com
+- GitHub Security Advisories: https://github.com/RA-Engenharia/SISTEMA-DE-GESTAO-RA-/security
 
 ---
 
