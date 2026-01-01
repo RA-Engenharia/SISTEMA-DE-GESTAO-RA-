@@ -1,0 +1,78 @@
+version: 2
+updates:
+  # Backend Node.js dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "backend"
+    commit-message:
+      prefix: "chore(deps):"
+    groups:
+      production-dependencies:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@types/*"
+          - "eslint*"
+          - "prettier*"
+          - "typescript"
+          - "vitest"
+          - "@vitest/*"
+      dev-dependencies:
+        patterns:
+          - "@types/*"
+          - "eslint*"
+          - "prettier*"
+          - "typescript"
+          - "vitest"
+          - "@vitest/*"
+
+  # Frontend React dependencies
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "frontend"
+    commit-message:
+      prefix: "chore(deps-frontend):"
+    groups:
+      react-ecosystem:
+        patterns:
+          - "react*"
+          - "@tanstack/*"
+      build-tools:
+        patterns:
+          - "vite*"
+          - "@vitejs/*"
+          - "typescript"
+
+  # Docker dependencies
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "docker"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "github-actions"

@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: sistema-ra-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-sistema_ra}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-sistema_ra}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sistema-ra-network
+
+  # Backend API
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sistema-ra-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@db:5432/${DB_NAME:-sistema_ra}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-900000}
+      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS:-100}
+    volumes:
+      - uploads_data:/app/uploads
+    ports:
+      - "${API_PORT:-3001}:3001"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - sistema-ra-network
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api
+    container_name: sistema-ra-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - sistema-ra-network
+
+volumes:
+  postgres_data:
+  uploads_data:
+
+networks:
+  sistema-ra-network:
+    driver: bridge

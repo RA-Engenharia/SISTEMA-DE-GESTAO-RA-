@@ -1,0 +1,61 @@
+version: '3.8'
+
+# Development docker-compose
+# Usage: docker-compose -f docker-compose.dev.yml up -d
+
+services:
+  # PostgreSQL Database for development
+  db:
+    image: postgres:16-alpine
+    container_name: sistema-ra-db-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: sistema_ra_dev
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d sistema_ra_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sistema-ra-dev-network
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: sistema-ra-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - sistema-ra-dev-network
+
+  # Adminer for database management
+  adminer:
+    image: adminer:latest
+    container_name: sistema-ra-adminer
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+      ADMINER_DESIGN: pepa-linha-dark
+    networks:
+      - sistema-ra-dev-network
+
+volumes:
+  postgres_dev_data:
+  redis_dev_data:
+
+networks:
+  sistema-ra-dev-network:
+    driver: bridge

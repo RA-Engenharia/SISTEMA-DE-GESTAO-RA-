@@ -1,0 +1,252 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum UserRole {
+  ADMIN
+  MANAGER
+  ENGINEER
+  TECHNICIAN
+  VIEWER
+}
+
+enum ProjectStatus {
+  PLANNING
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  DONE
+  BLOCKED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum DocumentType {
+  CONTRACT
+  PROPOSAL
+  TECHNICAL_REPORT
+  INVOICE
+  CERTIFICATE
+  PLAN
+  OTHER
+}
+
+// Models
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  password     String
+  name         String
+  role         UserRole  @default(VIEWER)
+  avatar       String?
+  phone        String?
+  department   String?
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relations
+  projects         Project[]        @relation("ProjectManager")
+  assignedTasks    Task[]           @relation("TaskAssignee")
+  createdTasks     Task[]           @relation("TaskCreator")
+  comments         Comment[]
+  documents        Document[]
+  activityLogs     ActivityLog[]
+  notifications    Notification[]
+
+  @@map("users")
+}
+
+model Client {
+  id          String    @id @default(uuid())
+  name        String
+  email       String?
+  phone       String?
+  document    String?   @unique // CPF/CNPJ
+  address     String?
+  city        String?
+  state       String?
+  zipCode     String?
+  notes       String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  projects    Project[]
+
+  @@map("clients")
+}
+
+model Project {
+  id            String        @id @default(uuid())
+  name          String
+  description   String?
+  code          String        @unique
+  status        ProjectStatus @default(PLANNING)
+  startDate     DateTime?
+  endDate       DateTime?
+  estimatedCost Decimal?      @db.Decimal(15, 2)
+  actualCost    Decimal?      @db.Decimal(15, 2)
+  progress      Int           @default(0) // 0-100
+  address       String?
+  city          String?
+  state         String?
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  client        Client?       @relation(fields: [clientId], references: [id])
+  clientId      String?
+  manager       User?         @relation("ProjectManager", fields: [managerId], references: [id])
+  managerId     String?
+  tasks         Task[]
+  documents     Document[]
+  activityLogs  ActivityLog[]
+
+  @@map("projects")
+}
+
+model Task {
+  id          String       @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus   @default(TODO)
+  priority    TaskPriority @default(MEDIUM)
+  dueDate     DateTime?
+  startDate   DateTime?
+  completedAt DateTime?
+  estimatedHours Float?
+  actualHours    Float?
+  order       Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String
+  assignee    User?        @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  assigneeId  String?
+  creator     User         @relation("TaskCreator", fields: [creatorId], references: [id])
+  creatorId   String
+  parentTask  Task?        @relation("Subtasks", fields: [parentId], references: [id])
+  parentId    String?
+  subtasks    Task[]       @relation("Subtasks")
+  comments    Comment[]
+  tags        TaskTag[]
+
+  @@map("tasks")
+}
+
+model Tag {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  color     String    @default("#6366f1")
+  createdAt DateTime  @default(now())
+
+  // Relations
+  tasks     TaskTag[]
+
+  @@map("tags")
+}
+
+model TaskTag {
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId    String
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId     String
+
+  @@id([taskId, tagId])
+  @@map("task_tags")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId    String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+
+  @@map("comments")
+}
+
+model Document {
+  id          String       @id @default(uuid())
+  name        String
+  description String?
+  type        DocumentType @default(OTHER)
+  filePath    String
+  fileSize    Int
+  mimeType    String
+  version     Int          @default(1)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  project     Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String?
+  uploadedBy  User         @relation(fields: [uploadedById], references: [id])
+  uploadedById String
+
+  @@map("documents")
+}
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  action      String
+  entity      String
+  entityId    String
+  details     Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user        User?    @relation(fields: [userId], references: [id])
+  userId      String?
+  project     Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String?
+
+  @@map("activity_logs")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  title     String
+  message   String
+  type      String   @default("info")
+  read      Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+
+  @@map("notifications")
+}

@@ -1,0 +1,43 @@
+# Dependencies
+node_modules
+frontend/node_modules
+
+# Build outputs
+dist
+frontend/dist
+build
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+logs
+*.log
+
+# Testing
+coverage
+.nyc_output
+
+# Documentation
+*.md
+!README.md
+
+# Docker
+docker-compose*.yml
+Dockerfile*
+
+# Misc
+.DS_Store
+Thumbs.db
