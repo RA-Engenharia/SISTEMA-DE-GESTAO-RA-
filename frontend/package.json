@@ -24,7 +24,7 @@
     "react-hook-form": "7.54.1",
     "react-hot-toast": "2.4.1",
     "react-router-dom": "7.1.0",
-    "recharts": "2.14.1",
+    "recharts": "3.6.0",
     "zod": "3.23.8",
     "zustand": "5.0.2"
   },
